@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAC BO AI</title>
+  <style>
+    body {
+      margin: 0;
+      background: #080d18;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 25px 15px;
+    }
+    h1 { color: #00e5a0; }
+    .painel {
+      background: #131e30;
+      padding: 22px;
+      border-radius: 15px;
+      margin: 20px auto;
+      max-width: 420px;
+    }
+    button {
+      padding: 15px;
+      margin: 5px;
+      border: 0;
+      border-radius: 10px;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .player { background: #246bdb; }
+    .banker { background: #db3434; }
+    .tie { background: #159c65; }
+    #historico { word-break: break-word; }
+  </style>
+</head>
+<body>
+  <h1>BAC BO AI</h1>
+  <p>Painel de análise de resultados</p>
+
+  <div class="painel">
+    <h2>Registrar resultado</h2>
+    <button class="player" onclick="registrar('Player')">PLAYER</button>
+    <button class="banker" onclick="registrar('Banker')">BANKER</button>
+    <button class="tie" onclick="registrar('Tie')">TIE</button>
+  </div>
+
+  <div class="painel">
+    <h2>Estatísticas</h2>
+    <p id="estatisticas">Player: 0 | Banker: 0 | Tie: 0</p>
+    <h3 id="analise">Aguardando resultados</h3>
+  </div>
+
+  <div class="painel">
+    <h2>Histórico</h2>
+    <p id="historico">Nenhum resultado registrado</p>
+    <button onclick="limpar()" style="background:#555">Limpar histórico</button>
+  </div>
+
+<script>
+let resultados = [];
+
+function registrar(valor) {
+  resultados.push(valor);
+  atualizar();
+}
+
+function atualizar() {
+  let p = resultados.filter(x => x === 'Player').length;
+  let b = resultados.filter(x => x === 'Banker').length;
+  let t = resultados.filter(x => x === 'Tie').length;
+
+  document.getElementById('estatisticas').textContent =
+    `Player: ${p} | Banker: ${b} | Tie: ${t}`;
+
+  document.getElementById('historico').textContent =
+    resultados.slice().reverse().join(' • ');
+
+  document.getElementById('analise').textContent =
+    resultados.length < 5
+    ? 'Registre pelo menos 5 resultados'
+    : 'Mais frequente: ' +
+      (p > b && p > t ? 'Player' : b > p && b > t ? 'Banker' : 'Sem tendência clara');
+}
+
+function limpar() {
+  resultados = [];
+  atualizar();
+}
+</script>
+</body>
+</html>
