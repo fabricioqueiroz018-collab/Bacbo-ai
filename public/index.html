@@ -1,94 +1,175 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BAC BO AI</title>
-  <style>
-    body {
-      margin: 0;
-      background: #080d18;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 25px 15px;
-    }
-    h1 { color: #00e5a0; }
-    .painel {
-      background: #131e30;
-      padding: 22px;
-      border-radius: 15px;
-      margin: 20px auto;
-      max-width: 420px;
-    }
-    button {
-      padding: 15px;
-      margin: 5px;
-      border: 0;
-      border-radius: 10px;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-    }
-    .player { background: #246bdb; }
-    .banker { background: #db3434; }
-    .tie { background: #159c65; }
-    #historico { word-break: break-word; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BAC BO AI Analytics</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080d18;color:white;font-family:Arial;padding:18px}
+main{max-width:600px;margin:auto}
+h1{color:#00e5a0;text-align:center}
+.sub{text-align:center;color:#9eabc0}
+.card{background:#131e30;padding:18px;border-radius:15px;margin:14px 0}
+.status{color:#ffc857;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#202e44;padding:14px 5px;border-radius:10px;text-align:center}
+.num{font-size:25px;font-weight:bold}
+.player{color:#58a0ff}.banker{color:#ff6666}.tie{color:#43dfa0}
+button{padding:13px;border:0;border-radius:9px;color:white;font-weight:bold;margin:4px}
+button:active{opacity:.7}
+.history{display:flex;flex-wrap:wrap;gap:7px}
+.ball{padding:9px 12px;border-radius:8px;font-weight:bold}
+.p{background:#246bdb}.b{background:#bd3434}.t{background:#159c65}
+small{color:#9eabc0}
+</style>
 </head>
 <body>
-  <h1>BAC BO AI</h1>
-  <p>Painel de análise de resultados</p>
+<main>
+<h1>BAC BO AI</h1>
+<p class="sub">Painel de análise e resultados ao vivo</p>
 
-  <div class="painel">
-    <h2>Registrar resultado</h2>
-    <button class="player" onclick="registrar('Player')">PLAYER</button>
-    <button class="banker" onclick="registrar('Banker')">BANKER</button>
-    <button class="tie" onclick="registrar('Tie')">TIE</button>
-  </div>
+<div class="card">
+ <div id="status" class="status">Conectando à API...</div>
+ <p id="ultima" style="text-align:center">Aguardando rodada</p>
+ <p id="dados" style="text-align:center"></p>
+</div>
 
-  <div class="painel">
-    <h2>Estatísticas</h2>
-    <p id="estatisticas">Player: 0 | Banker: 0 | Tie: 0</p>
-    <h3 id="analise">Aguardando resultados</h3>
-  </div>
+<div class="card">
+ <h3>Estatísticas da mesa</h3>
+ <div class="grid">
+  <div class="stat"><div class="player">PLAYER</div><div id="pc" class="num">0</div><small id="pp">0%</small></div>
+  <div class="stat"><div class="banker">BANKER</div><div id="bc" class="num">0</div><small id="bp">0%</small></div>
+  <div class="stat"><div class="tie">TIE</div><div id="tc" class="num">0</div><small id="tp">0%</small></div>
+ </div>
+</div>
 
-  <div class="painel">
-    <h2>Histórico</h2>
-    <p id="historico">Nenhum resultado registrado</p>
-    <button onclick="limpar()" style="background:#555">Limpar histórico</button>
-  </div>
+<div class="card">
+ <h3>Análise estatística</h3>
+ <p id="analise">Aguardando resultados suficientes.</p>
+ <small>Frequência e sequência descrevem o histórico; não preveem o próximo resultado.</small>
+</div>
+
+<div class="card">
+ <h3>Últimos resultados</h3>
+ <div id="historico" class="history">Carregando...</div>
+</div>
+
+<div class="card">
+ <h3>Registro manual</h3>
+ <button class="p" onclick="manual('player')">PLAYER</button>
+ <button class="b" onclick="manual('banker')">BANKER</button>
+ <button class="t" onclick="manual('tie')">TIE</button>
+ <button style="background:#555" onclick="limparManual()">Limpar manual</button>
+ <p id="manualInfo"><small>Nenhum resultado manual.</small></p>
+</div>
+</main>
 
 <script>
-let resultados = [];
+let rodadas = [];
+let manuais = [];
 
-function registrar(valor) {
-  resultados.push(valor);
-  atualizar();
+function resultado(r) {
+  const v = String(r?.outcome || "").toLowerCase();
+  if (v === "player" || v === "banker" || v === "tie") return v;
+  return null;
 }
 
 function atualizar() {
-  let p = resultados.filter(x => x === 'Player').length;
-  let b = resultados.filter(x => x === 'Banker').length;
-  let t = resultados.filter(x => x === 'Tie').length;
+  const p = rodadas.filter(r=>resultado(r)==="player").length;
+  const b = rodadas.filter(r=>resultado(r)==="banker").length;
+  const t = rodadas.filter(r=>resultado(r)==="tie").length;
+  const total = p+b+t;
 
-  document.getElementById('estatisticas').textContent =
-    `Player: ${p} | Banker: ${b} | Tie: ${t}`;
+  document.getElementById("pc").textContent=p;
+  document.getElementById("bc").textContent=b;
+  document.getElementById("tc").textContent=t;
+  document.getElementById("pp").textContent=(total?(p/total*100).toFixed(1):0)+"%";
+  document.getElementById("bp").textContent=(total?(b/total*100).toFixed(1):0)+"%";
+  document.getElementById("tp").textContent=(total?(t/total*100).toFixed(1):0)+"%";
 
-  document.getElementById('historico').textContent =
-    resultados.slice().reverse().join(' • ');
+  const ultimos=rodadas.slice(0,20);
+  document.getElementById("historico").innerHTML=ultimos.length
+    ? ultimos.map(r=>{
+      const v=resultado(r);
+      return `<span class="ball ${v==="player"?"p":v==="banker"?"b":"t"}">${v.toUpperCase()}</span>`;
+    }).join("")
+    : "Nenhum resultado recebido.";
 
-  document.getElementById('analise').textContent =
-    resultados.length < 5
-    ? 'Registre pelo menos 5 resultados'
-    : 'Mais frequente: ' +
-      (p > b && p > t ? 'Player' : b > p && b > t ? 'Banker' : 'Sem tendência clara');
+  if(total>=5){
+    const seq=rodadas.slice(0,5).map(resultado);
+    const repetidos=seq.every(v=>v===seq[0]);
+    document.getElementById("analise").textContent =
+      `Amostra: ${total} rodadas. Mais frequente: ${
+        p>b&&p>t?"Player":b>p&&b>t?"Banker":t>p&&t>b?"Tie":"sem líder claro"
+      }. ${repetidos?"Os últimos cinco resultados foram iguais.":"Não há sequência de cinco resultados iguais."}`;
+  } else {
+    document.getElementById("analise").textContent="Aguardando pelo menos 5 rodadas.";
+  }
 }
 
-function limpar() {
-  resultados = [];
+function adicionar(r){
+  if(!r || !r.id || !resultado(r)) return;
+  if(rodadas.some(x=>x.id===r.id)) return;
+  rodadas.unshift(r);
+  rodadas=rodadas.slice(0,250);
   atualizar();
 }
+
+async function carregarHistorico(){
+  const res=await fetch("/api/results?limit=100");
+  const json=await res.json();
+  if(!res.ok) throw new Error(json.error || "Erro ao buscar histórico");
+  const lista=Array.isArray(json.data)?json.data:[];
+  rodadas=[];
+  lista.slice().reverse().forEach(adicionar);
+  atualizar();
+}
+
+async function buscarUltima(){
+  const res=await fetch("/api/latest",{cache:"no-store"});
+  const json=await res.json();
+  if(!res.ok) throw new Error(json.error || "Erro ao buscar última rodada");
+  const r=json.data?.outcome?json.data:json;
+  adicionar(r);
+  document.getElementById("ultima").textContent=
+    "Último resultado: "+resultado(r).toUpperCase();
+  const d=r.data || {};
+  document.getElementById("dados").textContent=
+    `Player: ${d.player?.score ?? "?"} | Banker: ${d.banker?.score ?? "?"}`;
+}
+
+function manual(v){
+  manuais.push(v);
+  document.getElementById("manualInfo").textContent=
+    "Registros manuais: "+manuais.join(" • ");
+}
+function limparManual(){
+  manuais=[];
+  document.getElementById("manualInfo").textContent="Nenhum resultado manual.";
+}
+
+async function iniciar(){
+  try{
+    const h=await fetch("/api/health");
+    const health=await h.json();
+    if(!health.keyConfigured) throw new Error("Chave da API não configurada no servidor.");
+    await carregarHistorico();
+    await buscarUltima();
+    document.getElementById("status").textContent="● CONECTADO — atualizando a cada 3 segundos";
+    setInterval(async()=>{
+      try{
+        await buscarUltima();
+        document.getElementById("status").textContent="● CONECTADO — atualização automática";
+      }catch(e){
+        document.getElementById("status").textContent="● Falha na atualização: "+e.message;
+      }
+    },3000);
+  }catch(e){
+    document.getElementById("status").textContent="● ERRO: "+e.message;
+  }
+}
+iniciar();
 </script>
 </body>
 </html>
