@@ -4,40 +4,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BAC BO AI Analytics</title>
+<title>BAC BO AI RADAR PRO</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#080d18;color:white;font-family:Arial;padding:18px}
-main{max-width:600px;margin:auto}
+body{margin:0;background:#080d18;color:white;font-family:Arial;padding:15px}
+main{max-width:650px;margin:auto}
 h1{color:#00e5a0;text-align:center}
 .sub{text-align:center;color:#9eabc0}
-.card{background:#131e30;padding:18px;border-radius:15px;margin:14px 0}
-.status{color:#ffc857;text-align:center}
+.card{background:#131e30;padding:17px;border-radius:14px;margin:13px 0}
+.status{text-align:center;color:#ffc857}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.stat{background:#202e44;padding:14px 5px;border-radius:10px;text-align:center}
-.num{font-size:25px;font-weight:bold}
+.stat{background:#202e44;padding:12px 4px;border-radius:10px;text-align:center}
+.num{font-size:23px;font-weight:bold}
 .player{color:#58a0ff}
 .banker{color:#ff6666}
 .tie{color:#43dfa0}
-button{padding:13px;border:0;border-radius:9px;color:white;font-weight:bold;margin:4px}
-button:active{opacity:.7}
-.history{display:flex;flex-wrap:wrap;gap:7px}
-.ball{padding:9px 12px;border-radius:8px;font-weight:bold}
+button{padding:12px;border:0;border-radius:8px;color:white;font-weight:bold;margin:4px}
 .p{background:#246bdb}
 .b{background:#bd3434}
 .t{background:#159c65}
-small{color:#9eabc0}
+.gray{background:#555}
+.ball{padding:8px 10px;border-radius:7px;font-weight:bold}
+.history{display:flex;flex-wrap:wrap;gap:6px}
+.bar{height:9px;background:#26354b;border-radius:8px;overflow:hidden}
+.fill{height:100%;background:#00e5a0}
+.line{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #26354b}
+.muted{color:#9eabc0;font-size:12px}
+.signal{font-size:30px;text-align:center;font-weight:bold}
+.green{color:#00e5a0}
+.red{color:#ff7777}
+.yellow{color:#ffc857}
 </style>
 </head>
 <body>
 <main>
 
 <h1>BAC BO AI</h1>
-<p class="sub">Painel de análise e resultados ao vivo</p>
+<p class="sub">RADAR PRO — Inteligência estatística</p>
 
 <div class="card">
  <div id="status" class="status">Conectando à API...</div>
- <p id="ultima" style="text-align:center">Aguardando rodada</p>
+ <h3 id="ultima" style="text-align:center">Aguardando rodada</h3>
  <p id="dados" style="text-align:center"></p>
 </div>
 
@@ -46,26 +53,71 @@ small{color:#9eabc0}
  <div class="grid">
   <div class="stat">
    <div class="player">PLAYER</div>
-   <div id="pc" class="num">0</div>
+   <div class="num" id="pc">0</div>
    <small id="pp">0%</small>
   </div>
   <div class="stat">
    <div class="banker">BANKER</div>
-   <div id="bc" class="num">0</div>
+   <div class="num" id="bc">0</div>
    <small id="bp">0%</small>
   </div>
   <div class="stat">
    <div class="tie">TIE</div>
-   <div id="tc" class="num">0</div>
+   <div class="num" id="tc">0</div>
    <small id="tp">0%</small>
   </div>
  </div>
 </div>
 
 <div class="card">
- <h3>Análise estatística</h3>
- <p id="analise">Aguardando resultados suficientes.</p>
- <small>O histórico não garante nem prevê o próximo resultado.</small>
+ <h3>🚨 RADAR DE SINAIS</h3>
+ <div id="sinal" class="signal yellow">AGUARDANDO</div>
+ <p id="confianca" style="text-align:center">Aguardando histórico</p>
+ <p id="motivo" style="text-align:center">Analisando padrões...</p>
+ <div class="line">
+  <span>Indicadores concordando</span>
+  <b id="confluencia">0/8</b>
+ </div>
+ <div class="line">
+  <span>Gale 1</span>
+  <b>Somente simulação</b>
+ </div>
+ <p class="muted">
+ A concordância indica força estatística dos indicadores,
+ não probabilidade garantida de vitória.
+ </p>
+</div>
+
+<div class="card">
+ <h3>📊 Estratégias ativas</h3>
+ <div id="estrategias">Analisando...</div>
+</div>
+
+<div class="card">
+ <h3>📈 Frequência por período</h3>
+ <div id="periodos"></div>
+</div>
+
+<div class="card">
+ <h3>🏆 Backtest histórico</h3>
+ <div class="grid">
+  <div class="stat">
+   <small>Previsões</small>
+   <div class="num" id="btTotal">0</div>
+  </div>
+  <div class="stat">
+   <small>Acertos</small>
+   <div class="num" id="btAcertos">0</div>
+  </div>
+  <div class="stat">
+   <small>Taxa de acerto</small>
+   <div class="num" id="btTaxa">0%</div>
+  </div>
+ </div>
+ <p class="muted">
+ Simulação retrospectiva, sem garantia de desempenho futuro.
+ Empates não contam como acerto ou erro nas previsões Player/Banker.
+ </p>
 </div>
 
 <div class="card">
@@ -74,155 +126,245 @@ small{color:#9eabc0}
 </div>
 
 <div class="card">
- <h2>🚨 SINAIS BAC BO AI</h2>
- <h1 id="sinal">AGUARDANDO</h1>
- <p id="padrao">Analisando padrões...</p>
- <p id="gale">Gale 1: não automatizado</p>
- <p id="statusSinal">Aguardando histórico</p>
-</div>
-
-<div class="card">
  <h3>Registro manual</h3>
  <button class="p" onclick="manual('player')">PLAYER</button>
  <button class="b" onclick="manual('banker')">BANKER</button>
  <button class="t" onclick="manual('tie')">TIE</button>
- <button style="background:#555" onclick="limparManual()">Limpar manual</button>
- <p id="manualInfo"><small>Nenhum resultado manual.</small></p>
+ <button class="gray" onclick="limparManual()">Limpar</button>
+ <p id="manualInfo" class="muted">Nenhum registro manual.</p>
 </div>
 
 </main>
 
 <script>
-let rodadas = [];
-let manuais = [];
+let rodadas=[];
+let manuais=[];
+let ultimaAtualizacao=null;
+let timerIniciado=false;
 
 function resultado(r){
- const v = String(r?.outcome || "").toLowerCase();
- if(["player","banker","tie"].includes(v)) return v;
- return null;
+ const v=String(r?.outcome||"").toLowerCase();
+ return ["player","banker","tie"].includes(v)?v:null;
 }
 
-function adicionar(r){
- if(!r || !r.id || !resultado(r)) return;
+function percentual(a,b){
+ return b?(a/b*100).toFixed(1)+"%":"0%";
+}
 
- if(rodadas.some(x=>x.id===r.id)) return;
+function analisar(h){
+ const validos=h.filter(x=>x==="player"||x==="banker");
 
- rodadas.unshift(r);
- rodadas = rodadas.slice(0,250);
- atualizar();
+ if(validos.length<20){
+  return {lado:null, votos:0, motivos:[], total:0};
+ }
+
+ const curtos=validos.slice(0,20);
+ const medios=validos.slice(0,50);
+ const longos=validos.slice(0,100);
+
+ let votos={player:0,banker:0};
+ let motivos=[];
+
+ function votar(lado,nome){
+  if(!lado)return;
+  votos[lado]++;
+  motivos.push(nome+" → "+lado.toUpperCase());
+ }
+
+ // 1. Frequência dos últimos 20
+ const p20=curtos.filter(x=>x==="player").length;
+ const b20=curtos.length-p20;
+ if(Math.abs(p20-b20)>=5){
+  votar(p20>b20?"player":"banker","Frequência 20");
+ }
+
+ // 2. Frequência dos últimos 50
+ if(medios.length>=50){
+  const p=medios.filter(x=>x==="player").length;
+  const b=50-p;
+  if(Math.abs(p-b)>=8){
+   votar(p>b?"player":"banker","Frequência 50");
+  }
+ }
+
+ // 3. Frequência dos últimos 100
+ if(longos.length>=100){
+  const p=longos.filter(x=>x==="player").length;
+  const b=100-p;
+  if(Math.abs(p-b)>=12){
+   votar(p>b?"player":"banker","Frequência 100");
+  }
+ }
+
+ // 4. Continuação de sequência
+ const seq=validos.slice(0,4);
+ if(seq.length===4 && seq.every(x=>x===seq[0])){
+  votar(seq[0],"Sequência");
+ }
+
+ // 5. Alternância recente
+ const alt=validos.slice(0,4);
+ if(alt.length===4 &&
+    alt[0]!==alt[1] &&
+    alt[1]!==alt[2] &&
+    alt[2]!==alt[3]){
+  votar(alt[0],"Alternância");
+ }
+
+ // 6. Tendência curta contra tendência média
+ if(medios.length>=50){
+  const p=curtos.filter(x=>x==="player").length;
+  const b=20-p;
+  if(Math.abs(p-b)>=6){
+   votar(p>b?"player":"banker","Tendência curta");
+  }
+ }
+
+ // 7. Tendência dos últimos 10
+ const dez=validos.slice(0,10);
+ if(dez.length===10){
+  const p=dez.filter(x=>x==="player").length;
+  if(Math.abs(p-5)>=3){
+   votar(p>5?"player":"banker","Tendência 10");
+  }
+ }
+
+ // 8. Repetição dos últimos 3
+ const tres=validos.slice(0,3);
+ if(tres.length===3 && tres.every(x=>x===tres[0])){
+  votar(tres[0],"Repetição tripla");
+ }
+
+ const maior=Math.max(votos.player,votos.banker);
+ const menor=Math.min(votos.player,votos.banker);
+
+ let lado=null;
+ if(maior>=3 && maior-menor>=2){
+  lado=votos.player>votos.banker?"player":"banker";
+ }
+
+ return {
+  lado,
+  votos:maior,
+  motivos,
+  total:validos.length,
+  votosPlayer:votos.player,
+  votosBanker:votos.banker
+ };
 }
 
 function atualizar(){
- const p = rodadas.filter(r=>resultado(r)==="player").length;
- const b = rodadas.filter(r=>resultado(r)==="banker").length;
- const t = rodadas.filter(r=>resultado(r)==="tie").length;
- const total = p+b+t;
+ const p=rodadas.filter(r=>resultado(r)==="player").length;
+ const b=rodadas.filter(r=>resultado(r)==="banker").length;
+ const t=rodadas.filter(r=>resultado(r)==="tie").length;
+ const total=p+b+t;
 
  document.getElementById("pc").textContent=p;
  document.getElementById("bc").textContent=b;
  document.getElementById("tc").textContent=t;
-
- document.getElementById("pp").textContent=
-  (total?(p/total*100).toFixed(1):0)+"%";
-
- document.getElementById("bp").textContent=
-  (total?(b/total*100).toFixed(1):0)+"%";
-
- document.getElementById("tp").textContent=
-  (total?(t/total*100).toFixed(1):0)+"%";
-
- const ultimos=rodadas.slice(0,20);
+ document.getElementById("pp").textContent=percentual(p,total);
+ document.getElementById("bp").textContent=percentual(b,total);
+ document.getElementById("tp").textContent=percentual(t,total);
 
  document.getElementById("historico").innerHTML=
-  ultimos.length
-  ? ultimos.map(r=>{
-    const v=resultado(r);
-    return `<span class="ball ${v==="player"?"p":v==="banker"?"b":"t"}">${v.toUpperCase()}</span>`;
-   }).join("")
-  : "Nenhum resultado recebido.";
+  rodadas.slice(0,25).map(r=>{
+   const v=resultado(r);
+   return `<span class="ball ${v==="player"?"p":v==="banker"?"b":"t"}">${v.toUpperCase()}</span>`;
+  }).join("")||"Nenhum resultado recebido.";
 
- if(total>=5){
-  const seq=rodadas.slice(0,5).map(resultado);
-  const repetidos=seq.every(v=>v===seq[0]);
-
-  document.getElementById("analise").textContent=
-   `Amostra: ${total} rodadas. Mais frequente: ${
-    p>b&&p>t?"Player":
-    b>p&&b>t?"Banker":
-    t>p&&t>b?"Tie":"sem líder claro"
-   }. ${
-    repetidos?
-    "Os últimos cinco resultados foram iguais.":
-    "Não há sequência de cinco resultados iguais."
-   }`;
- }else{
-  document.getElementById("analise").textContent=
-   "Aguardando pelo menos 5 rodadas.";
- }
-
- analisarSinais();
+ mostrarPeriodos();
+ mostrarRadar();
+ mostrarBacktest();
 }
 
-function analisarSinais(){
- const validos=rodadas.map(resultado).filter(Boolean);
+function mostrarPeriodos(){
+ const periodos=[20,50,100];
+ let html="";
 
- if(validos.length<20){
-  document.getElementById("sinal").textContent="AGUARDANDO";
-  document.getElementById("padrao").textContent=
-   "Precisamos de pelo menos 20 resultados.";
-  document.getElementById("statusSinal").textContent=
-   "Histórico insuficiente.";
-  return;
+ periodos.forEach(n=>{
+  const lista=rodadas.map(resultado)
+   .filter(x=>x==="player"||x==="banker")
+   .slice(0,n);
+
+  const p=lista.filter(x=>x==="player").length;
+  const b=lista.length-p;
+
+  html+=`
+   <div class="line">
+    <b>Últimos ${n}</b>
+    <span>Player ${percentual(p,lista.length)}</span>
+    <span>Banker ${percentual(b,lista.length)}</span>
+   </div>`;
+ });
+
+ document.getElementById("periodos").innerHTML=html;
+}
+
+function mostrarRadar(){
+ const h=rodadas.map(resultado);
+ const r=analisar(h);
+
+ const sinal=document.getElementById("sinal");
+ sinal.textContent=r.lado?r.lado.toUpperCase():"AGUARDAR";
+ sinal.className="signal "+(r.lado?"green":"yellow");
+
+ document.getElementById("confianca").textContent=
+  r.lado?"Confluência estatística identificada":"Sem confluência suficiente";
+
+ document.getElementById("confluencia").textContent=
+  r.votos+"/8";
+
+ document.getElementById("motivo").textContent=
+  r.motivos.length?r.motivos.join(" | "):"Nenhum indicador suficiente.";
+
+ document.getElementById("estrategias").innerHTML=
+  r.motivos.length
+  ?r.motivos.map(x=>`<div class="line">${x}</div>`).join("")
+  :"<p>Indicadores aguardando dados suficientes.</p>";
+}
+
+function mostrarBacktest(){
+ // Walk-forward: cada previsão usa somente resultados anteriores.
+ const cronologico=rodadas.slice().reverse()
+  .map(resultado)
+  .filter(Boolean);
+
+ let total=0;
+ let acertos=0;
+
+ for(let i=20;i<cronologico.length;i++){
+  const passado=cronologico.slice(0,i).reverse();
+  const previsao=analisar(passado);
+  const real=cronologico[i];
+
+  if(!previsao.lado)continue;
+  if(real==="tie")continue;
+
+  total++;
+  if(previsao.lado===real)acertos++;
  }
 
- const ultimos=validos.slice(0,20);
- const player=ultimos.filter(x=>x==="player").length;
- const banker=ultimos.filter(x=>x==="banker").length;
+ document.getElementById("btTotal").textContent=total;
+ document.getElementById("btAcertos").textContent=acertos;
+ document.getElementById("btTaxa").textContent=percentual(acertos,total);
+}
 
- const seq=ultimos.slice(0,3);
- const repeticao=seq.every(x=>x===seq[0]);
+function adicionar(r){
+ if(!r || !r.id || !resultado(r))return;
+ if(rodadas.some(x=>x.id===r.id))return;
 
- const alternancia=
-  seq[0]!==seq[1] &&
-  seq[1]!==seq[2] &&
-  seq[0]===seq[2];
-
- let lado=null;
- let padrao="Sem confluência suficiente";
-
- if(player>=13){
-  lado="player";
-  padrao="Tendência de frequência Player";
- }else if(banker>=13){
-  lado="banker";
-  padrao="Tendência de frequência Banker";
- }else if(repeticao && seq[0]==="player"){
-  lado="player";
-  padrao="Padrão de repetição Player";
- }else if(repeticao && seq[0]==="banker"){
-  lado="banker";
-  padrao="Padrão de repetição Banker";
- }else if(alternancia){
-  padrao="Alternância detectada; aguardar";
- }
-
- document.getElementById("sinal").textContent=
-  lado?lado.toUpperCase():"AGUARDAR";
-
- document.getElementById("padrao").textContent=padrao;
-
- document.getElementById("statusSinal").textContent=
-  "Análise estatística de 20 rodadas concluída.";
+ rodadas.unshift(r);
+ rodadas=rodadas.slice(0,250);
+ atualizar();
 }
 
 async function carregarHistorico(){
  const res=await fetch("/api/results?limit=100",{cache:"no-store"});
  const json=await res.json();
 
- if(!res.ok) throw new Error(json.error||"Erro no histórico");
+ if(!res.ok)throw new Error("Falha ao buscar histórico");
 
  const lista=Array.isArray(json.data)?json.data:[];
-
  rodadas=[];
 
  lista.slice().reverse().forEach(adicionar);
@@ -233,43 +375,39 @@ async function buscarUltima(){
  const res=await fetch("/api/latest",{cache:"no-store"});
  const json=await res.json();
 
- if(!res.ok) throw new Error(json.error||"Erro ao buscar rodada");
+ if(!res.ok)throw new Error("Falha ao buscar última rodada");
 
  const r=json.data?.outcome?json.data:json;
 
- if(!resultado(r)){
-  throw new Error("Resultado ainda não disponível");
- }
+ if(!resultado(r))throw new Error("Rodada sem resultado válido");
 
  adicionar(r);
 
+ ultimaAtualizacao=r.id;
+
  document.getElementById("ultima").textContent=
-  "Último resultado: "+resultado(r).toUpperCase();
+  "Última rodada: "+resultado(r).toUpperCase();
 
  const d=r.data||{};
-
  document.getElementById("dados").textContent=
   `Player: ${d.player?.score??"?"} | Banker: ${d.banker?.score??"?"}`;
 }
 
 function manual(v){
  manuais.push(v);
-
  document.getElementById("manualInfo").textContent=
-  "Registros manuais: "+manuais.join(" • ");
+  "Registros: "+manuais.join(" • ");
 }
 
 function limparManual(){
  manuais=[];
-
  document.getElementById("manualInfo").textContent=
-  "Nenhum resultado manual.";
+  "Nenhum registro manual.";
 }
 
 async function iniciar(){
  try{
-  document.getElementById("status").textContent=
-   "Verificando conexão...";
+  document.getElementById("status").textContent="Verificando API...";
 
   const h=await fetch("/api/health",{cache:"no-store"});
   const health=await h.json();
@@ -284,17 +422,20 @@ async function iniciar(){
   document.getElementById("status").textContent=
    "● CONECTADO — atualização automática";
 
-  setInterval(async()=>{
-   try{
-    await buscarUltima();
+  if(!timerIniciado){
+   timerIniciado=true;
 
-    document.getElementById("status").textContent=
-     "● CONECTADO — atualização automática";
-   }catch(e){
-    document.getElementById("status").textContent=
-     "● Falha na atualização: "+e.message;
-   }
-  },3000);
+   setInterval(async()=>{
+    try{
+     await buscarUltima();
+     document.getElementById("status").textContent=
+      "● CONECTADO — atualização automática";
+    }catch(e){
+     document.getElementById("status").textContent=
+      "● FALHA: "+e.message;
+    }
+   },3000);
+  }
 
  }catch(e){
   document.getElementById("status").textContent=
