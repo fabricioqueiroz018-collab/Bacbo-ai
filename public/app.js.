@@ -1,0 +1,30 @@
+nst $ = id => document.getElementById(id);
+let rounds=[], balance=1000, wins=0, losses=0, g1=false, seen=new Set();
+const money=n=>n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+function outcomeLabel(o){return o==="player"?"PLAYER":o==="banker"?"BANKER":o==="tie"?"EMPATE":String(o||"—").toUpperCase()}
+function update(){
+ $("balance").textContent=money(balance);$("roundCount").textContent=rounds.length;
+ const last=rounds[0];$("last").textContent=last?outcomeLabel(last.outcome):"—";
+ const sample=Number($("sample").value), arr=rounds.slice(0,sample);
+ const total=arr.length||1, counts={player:0,banker:0,tie:0};
+ arr.forEach(r=>{if(counts[r.outcome]!==undefined)counts[r.outcome]++});
+ $("playerPct").textContent=Math.round(counts.player/total*100)+"%";
+ $("bankerPct").textContent=Math.round(counts.banker/total*100)+"%";
+ $("tiePct").textContent=Math.round(counts.tie/total*100)+"%";
+ // Descriptive-only alert: a side is called "mais frequente", never a prediction.
+ const sorted=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+ const [leader,n]=sorted[0], gap=n-sorted[1];
+ if(arr.length<10 || gap<2){$("signal").textContent="SEM DESTAQUE ESTATÍSTICO";$("signalTag").textContent="OBSERVAR";$("signalText").textContent="Amostra pequena ou frequências próximas. Nenhuma indicação de entrada.";}
+ else {$("signal").textContent=outcomeLabel(leader)+" MAIS FREQUENTE";$("signalTag").textContent="DADO HISTÓRICO";$("signalText").textContent=`${n} de ${arr.length} resultados na amostra. Isso descreve o passado e não prevê a próxima rodada.`;}
+ $("wins").textContent=wins;$("losses").textContent=losses;$("g1").textContent=g1?"Disponível":"Desligado";
+ $("history").innerHTML=rounds.slice(0,30).map(r=>`<span class="chip ${r.outcome}">${outcomeLabel(r.outcome)}</span>`).join("")||"Nenhuma rodada recebida.";
+}
+function addRound(r){if(!r?.id||seen.has(r.id))return;seen.add(r.id);rounds.unshift(r);rounds=rounds.slice(0,250);update();}
+async function loadHistory(){try{const r=await fetch("/api/results?limit=250");const j=await r.json();(j.data||[]).forEach(addRound);$("status").textContent="DADOS CONECTADOS";$("status").className="pill ok";}catch(e){$("status").textContent="SEM CONEXÃO";$("status").className="pill bad";}}
+function connect(){const es=new EventSource("/api/stream");es.addEventListener("round",e=>{try{const j=JSON.parse(e.data);addRound(j.data||j);$("status").textContent="AO VIVO";$("status").className="pill ok";}catch{}});es.onerror=()=>{$("status").textContent="RECONectando";$("status").className="pill bad";};}
+$("sample").addEventListener("change",update);
+$("reset").onclick=()=>{balance=1000;wins=0;losses=0;g1=false;update()};
+$("win").onclick=()=>{const n=Number($("stake").value);if(n>0){balance+=n;wins++;g1=false;update()}};
+$("loss").onclick=()=>{const n=Number($("stake").value);if(n>0&&n<=balance){balance-=n;losses++;g1=true;update()}};
+loadHistory().then(connect);update();
+if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});
