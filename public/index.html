@@ -54,7 +54,13 @@ small{color:#9eabc0}
  <h3>Últimos resultados</h3>
  <div id="historico" class="history">Carregando...</div>
 </div>
-
+<div class="card">
+ <h2>🚨 SINAIS BAC BO AI</h2>
+ <h1 id="sinal">AGUARDANDO</h1>
+ <p id="padrao">Analisando padrões...</p>
+ <p id="gale">Gale 1: disponível após uma perda</p>
+ <p id="statusSinal">Aguardando histórico</p>
+</div>
 <div class="card">
  <h3>Registro manual</h3>
  <button class="p" onclick="manual('player')">PLAYER</button>
@@ -140,8 +146,64 @@ async function buscarUltima(){
 }
 
 function manual(v){
-  manuais.push(v);
-  document.getElementById("manualInfo").textContent=
+let sinalAtual = null;
+let galeUsado = false;
+let ultimaRodadaProcessada = null;
+
+function analisarSinais(){
+  const validos = rodadas.map(resultado).filter(Boolean);
+
+  if(validos.length < 20){
+    document.getElementById("sinal").textContent = "AGUARDANDO";
+    document.getElementById("padrao").textContent =
+      "Precisamos de pelo menos 20 resultados.";
+    return;
+  }
+
+  const ultimos = validos.slice(0,20);
+  const player = ultimos.filter(x=>x==="player").length;
+  const banker = ultimos.filter(x=>x==="banker").length;
+
+  const sequencia = ultimos.slice(0,3);
+  const repeticao = sequencia.every(x=>x===sequencia[0]);
+
+  const alternancia =
+    ultimos[0]!==ultimos[1] &&
+    ultimos[1]!==ultimos[2] &&
+    ultimos[0]===ultimos[2];
+
+  let lado = null;
+  let padrao = "Sem confluência suficiente";
+
+  if(player >= 13){
+    lado = "player";
+    padrao = "Tendência de frequência Player";
+  }else if(banker >= 13){
+    lado = "banker";
+    padrao = "Tendência de frequência Banker";
+  }else if(repeticao && sequencia[0]==="player"){
+    lado = "player";
+    padrao = "Padrão de repetição Player";
+  }else if(repeticao && sequencia[0]==="banker"){
+    lado = "banker";
+    padrao = "Padrão de repetição Banker";
+  }else if(alternancia){
+    lado = null;
+    padrao = "Alternância detectada; aguardar";
+  }
+
+  document.getElementById("sinal").textContent =
+    lado ? lado.toUpperCase() : "AGUARDAR";
+
+  document.getElementById("padrao").textContent = padrao;
+  document.getElementById("statusSinal").textContent =
+    "Análise estatística de 20 rodadas concluída.";
+}
+ manuais.push(v);
+  document.getElementById("analise").textContent="Aguardando pelo menos 5 rodadas.";
+}
+
+analisarSinais();
     "Registros manuais: "+manuais.join(" • ");
 }
 function limparManual(){
